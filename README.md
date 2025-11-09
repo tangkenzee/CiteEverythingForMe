@@ -1,11 +1,13 @@
 # Academic Citation Generator Agent
 
-A ConnectOnion-powered agent designed for university students to generate properly formatted academic citations for their written reports and formal papers.
+ALL your citations at once, no more searching one by one. 
+CiteEverythingForME is a ConnectOnion-powered agent designed for university students to generate properly formatted academic citations for their written reports and formal papers.
 
 ## Features
 
-- **Multiple Citation Styles**: Supports 6 major academic formats:
+- **Multiple Citation Styles**: Supports 7 major academic formats:
   - Harvard (default) - UK/Australia universities
+  - UNSW - UNSW Harvard referencing style (University of New South Wales)
   - MLA - Humanities and literature
   - Chicago - Versatile, many disciplines
   - APA - Social sciences and psychology
@@ -33,6 +35,7 @@ A ConnectOnion-powered agent designed for university students to generate proper
    This starts an interactive session. **You provide your own URLs** when prompted:
    ```
    Your request: Generate an APA citation for https://www.your-source.com
+   Your request: Generate a UNSW citation for https://www.example.com
    Your request: Generate Harvard citations for https://url1.com and https://url2.com
    Your request: quit
    ```
@@ -48,6 +51,7 @@ A ConnectOnion-powered agent designed for university students to generate proper
 python agent.py
 # Then enter your requests with your own URLs:
 # Your request: Generate an APA citation for https://www.your-source.com
+# Your request: Generate a UNSW citation for https://www.example.com
 # Your request: Generate Harvard citations for https://url1.com and https://url2.com
 ```
 
@@ -62,6 +66,10 @@ print(result)
 
 # Generate an MLA citation for your URL
 result = agent.input(f"Generate an MLA citation for {your_url}")
+print(result)
+
+# Generate a UNSW citation (for UNSW students)
+result = agent.input(f"Generate a UNSW citation for {your_url}")
 print(result)
 
 # Generate multiple styles for the same URL
@@ -90,6 +98,11 @@ Each citation style follows its specific academic formatting rules. Examples:
 - In-text: `(Example Domain, 2025)`
 - Reference: `Example Domain 2025, www.example.com, viewed 09 November 2025, <https://www.example.com>.`
 
+**UNSW Style (UNSW Harvard Referencing):**
+- In-text: `(Example 2025)`
+- Reference: `Example 2025, Example Domain, accessed 09 November 2025, <https://www.example.com>.`
+- Note: UNSW style follows the University of New South Wales Harvard referencing guidelines, with author/organisation name derived from page content when available
+
 **MLA Style:**
 - In-text: `("Example Domain")`
 - Reference: `"Example Domain." www.example.com, 09 Nov. 2025, https://www.example.com.`
@@ -103,7 +116,7 @@ Each citation style follows its specific academic formatting rules. Examples:
 The agent has access to these tools:
 
 - `fetch_page_title(url)` - Fetch the title of a webpage
-- `generate_citation(url, style)` - Generate citations in specified style (harvard, mla, chicago, apa, ieee, vancouver)
+- `generate_citation(url, style)` - Generate citations in specified style (harvard, unsw, mla, chicago, apa, ieee, vancouver)
 - `get_all_citations(style)` - Retrieve all stored citations in a specific style
 - `list_available_styles()` - List all supported citation formats
 - `clear_citations()` - Clear all stored citations
@@ -113,6 +126,7 @@ The agent has access to these tools:
 | Style | Common Use | Example Fields |
 |-------|-----------|----------------|
 | **Harvard** | UK/Australia universities | General academic work |
+| **UNSW** | University of New South Wales | UNSW-specific Harvard style |
 | **MLA** | Humanities, literature | English, history, arts |
 | **Chicago** | Versatile, many fields | History, business, social sciences |
 | **APA** | Social sciences | Psychology, education, sociology |
@@ -141,8 +155,10 @@ The agent has access to these tools:
 ## Tips for Students
 
 1. **Specify your style** - Always mention which citation style you need (e.g., "Generate an APA citation...")
-2. **Check with your institution** - Some universities have specific variations of citation styles
-3. **Verify URLs** - Make sure URLs are accessible and correct before generating citations
-4. **Multiple sources** - You can generate citations for multiple URLs in one request
-5. **Style consistency** - Use the same citation style throughout your paper
+2. **UNSW Students** - If you're a UNSW student, use the UNSW style which follows UNSW's specific Harvard referencing guidelines. See `UNSW_Harvard_referencing.md` for detailed formatting rules.
+3. **Check with your institution** - Some universities have specific variations of citation styles
+4. **Verify URLs** - Make sure URLs are accessible and correct before generating citations
+5. **Multiple sources** - You can generate citations for multiple URLs in one request
+6. **Style consistency** - Use the same citation style throughout your paper
+7. **Author extraction** - The agent automatically extracts author/organisation names from page content when available, falling back to domain name if not found
 
