@@ -17,40 +17,27 @@ class CitationGenerator:
         self.citations: Dict[str, Dict[str, Dict[str, str]]] = {}
         self.default_style: CitationStyle = "harvard"
     
-    def fetch_page_title(self, url: str) -> str:
-        """Fetch the title of a webpage from its URL."""
+    def get_page_title(self, url: str) -> str:
+        """Return the page title or an error string."""
+        title, _ = self.get_page_content(url)
+        return title
+
+    def get_page_content(self, url: str) -> Tuple[str, Optional[BeautifulSoup]]:
+        """Return (title, soup) for the given URL."""
         try:
             response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                title = soup.title.string if soup.title else 'No Title Found'
-                return title.strip()
-            else:
-                return f'Error fetching page: HTTP {response.status_code}'
-        except requests.exceptions.RequestException as e:
-            return f'Error fetching page: {str(e)}'
-        except Exception as e:
-            return f'Error: {str(e)}'
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            return f"Error fetching page: {exc}", None
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        title = soup.title.string.strip() if soup.title and soup.title.string else 'No Title Found'
+        return title, soup
     
-    def fetch_page_content(self, url: str) -> Tuple[str, Optional[BeautifulSoup]]:
-        """Fetch page title and BeautifulSoup object for further parsing."""
-        try:
-            response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                title = soup.title.string.strip() if soup.title else 'No Title Found'
-                return title, soup
-            else:
-                return f'Error fetching page: HTTP {response.status_code}', None
-        except requests.exceptions.RequestException as e:
-            return f'Error fetching page: {str(e)}', None
-        except Exception as e:
-            return f'Error: {str(e)}', None
-    
-    def _extract_author_from_page(self, soup: Optional[BeautifulSoup], domain: str) -> str:
+    def _determine_author(self, soup: Optional[BeautifulSoup], domain: str) -> str:
         """Extract author/organisation name from page content, fallback to domain if not found."""
         if soup is None:
-            return self._extract_author_from_domain(domain)
+            return self._author_from_domain(domain)
         
         # Try various meta tags for author information
         author = None
@@ -225,22 +212,24 @@ class CitationGenerator:
                         author = text
                         break
         
-        # If author found, return it; otherwise fallback to domain
-        if author and len(author) > 0:
-            return author.strip()
-        else:
-            return self._extract_author_from_domain(domain)
+        return author.strip() if author else self._author_from_domain(domain)
     
     def _get_access_date(self, url: str) -> datetime:
         """Get the access date for a URL, trying headers first, then current date."""
+        response = None
         try:
             response = requests.head(url, timeout=10, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
-            date_str = response.headers.get('Date', '')
-            if date_str:
-                from email.utils import parsedate_to_datetime
+            response.raise_for_status()
+        except requests.RequestException:
+            return datetime.now()
+
+        date_str = response.headers.get('Date', '')
+        if date_str:
+            from email.utils import parsedate_to_datetime
+            try:
                 return parsedate_to_datetime(date_str)
-        except:
-            pass
+            except (TypeError, ValueError):
+                pass
         return datetime.now()
     
     def _format_harvard(self, title: str, domain: str, url: str, access_date: datetime) -> Dict[str, str]:
@@ -323,7 +312,7 @@ class CitationGenerator:
         
         return {"intext": intext, "reference": reference}
     
-    def _extract_author_from_domain(self, domain: str) -> str:
+    def _author_from_domain(self, domain: str) -> str:
         """Extract author/organisation name from domain name."""
         # Remove www. prefix if present
         domain_clean = domain.replace('www.', '')
@@ -407,18 +396,18 @@ class CitationGenerator:
         # For UNSW style, we need to extract author from page content
         if style_lower == "unsw":
             # Fetch page content to extract author
-            title, soup = self.fetch_page_content(url)
+            title, soup = self.get_page_content(url)
             if title.startswith('Error'):
                 # Fallback to simple title fetch if content fetch failed
-                title = self.fetch_page_title(url)
+                title = self.get_page_title(url)
                 soup = None
             
             # Extract author from page (falls back to domain if not found)
-            author = self._extract_author_from_page(soup, domain)
+            author = self._determine_author(soup, domain)
             formatted = self._format_unsw(title, domain, url, access_date, author)
         else:
             # For other styles, just fetch title
-            title = self.fetch_page_title(url)
+            title = self.get_page_title(url)
             
             if style_lower == "harvard":
                 formatted = self._format_harvard(title, domain, url, access_date)
@@ -443,7 +432,7 @@ class CitationGenerator:
         self.citations[url][style_lower] = formatted
         
         # Automatically export to file after generating citation
-        self._auto_export_citations(style_lower)
+        self._update_citation_output(style_lower)
         
         return f"Generated {style_lower.upper()} citation for {url}:\n\nIn-text citation: {formatted['intext']}\n\nReference list entry:\n{formatted['reference']}"
     
@@ -479,61 +468,43 @@ class CitationGenerator:
     
     def _strip_html_tags(self, text: str) -> str:
         """Remove HTML tags from text for clean file output."""
-        import re
         # Remove HTML tags
         text = re.sub(r'<[^>]+>', '', text)
         # Decode HTML entities
         text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
         return text.strip()
     
-    def _auto_export_citations(self, style: str) -> None:
+    def _update_citation_output(self, style: str) -> None:
         """Automatically append new citations to citations_output.txt after each generation."""
-        try:
-            self._append_to_citations_file(style)
-        except:
-            # Silently fail if export fails - don't interrupt citation generation
-            pass
+        self._append_citations_to_output(style)
     
-    def _read_existing_citations(self, filename: str = "citations_output.txt") -> Dict[str, set]:
+    def _load_existing_citations(self, filename: str = "citations_output.txt") -> Dict[str, set]:
         """Read existing citations from file to avoid duplicates. Returns dict of {url: {styles}}."""
-        existing = {}  # {url: set of styles}
-        try:
-            if os.path.exists(filename):
-                with open(filename, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    # Extract URL-style combinations from file
-                    # New format: "Style: STYLE" followed by "Source: URL" (within same citation block)
-                    # Match style and URL that appear together
-                    new_format_pattern = r'Style:\s+(\w+)[\s\S]*?Source:\s+(https?://[^\s]+)'
-                    matches = re.findall(new_format_pattern, content)
-                    for style, url in matches:
-                        if url not in existing:
-                            existing[url] = set()
-                        existing[url].add(style.lower())
-                    
-                    # Also handle old format: "Source X: URL" 
-                    # Check if there's a style header before it (e.g., "Citations (UNSW Style)")
-                    # Or assume UNSW if in old format section
-                    old_format_urls = re.findall(r'Source\s+\d+:\s+(https?://[^\s]+)', content)
-                    # Try to detect style from context (e.g., "Citations (UNSW Style)")
-                    style_context = re.search(r'Citations\s+\((\w+)\s+Style\)', content, re.IGNORECASE)
-                    detected_style = style_context.group(1).lower() if style_context else 'unknown'
-                    
-                    for url in old_format_urls:
-                        if url not in existing:
-                            existing[url] = set()
-                        existing[url].add(detected_style)
-        except:
-            pass
+        existing: Dict[str, set] = {}
+        if not os.path.exists(filename):
+            return existing
+
+        with open(filename, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        for style, url in re.findall(r'Style:\s+(\w+)[\s\S]*?Source:\s+(https?://[^\s]+)', content):
+            existing.setdefault(url, set()).add(style.lower())
+
+        old_urls = re.findall(r'Source\s+\d+:\s+(https?://[^\s]+)', content)
+        style_context = re.search(r'Citations\s+\((\w+)\s+Style\)', content, re.IGNORECASE)
+        detected_style = style_context.group(1).lower() if style_context else 'unknown'
+        for url in old_urls:
+            existing.setdefault(url, set()).add(detected_style)
+
         return existing
     
-    def _append_to_citations_file(self, style: str, filename: str = "citations_output.txt") -> None:
+    def _append_citations_to_output(self, style: str, filename: str = "citations_output.txt") -> None:
         """Append new citations to citations_output.txt, avoiding duplicates."""
         if not self.citations:
             return
         
         style_lower = style.lower()
-        existing_citations = self._read_existing_citations(filename)  # {url: {styles}}
+        existing_citations = self._load_existing_citations(filename)  # {url: {styles}}
         
         # Find new citations for this style
         new_citations = []
@@ -618,7 +589,7 @@ agent = Agent(
     system_prompt="prompt.md",
     tools=[citation_gen],
     max_iterations=15,
-    model="co/o4-mini"
+    model="co/gpt-5-nano"
 )
 
 
@@ -639,22 +610,15 @@ if __name__ == "__main__":
     while True:
         try:
             user_input = input("\nYour request: ").strip()
-            
             if not user_input:
                 continue
-            
             if user_input.lower() in ['quit', 'exit', 'q']:
                 print("\nGoodbye! Your citations have been saved.")
                 break
-            
             # Process user's request
             result = agent.input(user_input)
             print(f"\n{result}")
             print("-" * 60)
-            
         except KeyboardInterrupt:
             print("\n\nGoodbye! Your citations have been saved.")
             break
-        except Exception as e:
-            print(f"\nError: {e}")
-            print("Please try again or type 'quit' to exit.")
