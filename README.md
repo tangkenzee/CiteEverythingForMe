@@ -1,14 +1,14 @@
 # CiteEverythingForMe
 
-AI-assisted academic citation generation for the web. A Manifest V3 Chrome extension captures pages you are viewing and a FastAPI backend formats citations across UNSW Harvard, Harvard, APA, MLA, Chicago, IEEE, and Vancouver styles. Download a single `citations.txt` file in one click.
+AI-assisted academic citation generation for the web. A Manifest V3 Chrome extension captures every page you visit and a FastAPI backend formats citations across UNSW Harvard, Harvard, APA, MLA, Chicago, IEEE, and Vancouver styles. Download a single `citations.txt` file in one click.
 
 ## Key features
 
-- Manifest V3 extension that collects URLs from the active browser tab
+- Manifest V3 extension automatically accumulates URLs from active tabs
 - Bulk citation generation via `POST /api/citations/generate`
 - Optional ConnectOnion AI mode for natural-language citation requests
 - Robust author extraction (meta tags, JSON-LD, bylines, domain fallback)
-- Plain-text download (`citations_style_count.txt`) ready for copy/paste
+- Chrome downloads API delivers a ready-to-use `citations.txt`
 
 ## Prerequisites
 
@@ -44,22 +44,24 @@ uvicorn agent.main:app --reload
 - Swagger UI: `http://localhost:8000/docs`
 - Health check: `http://localhost:8000/health`
 
-> **CORS**: During development we allow all origins (`*`). Before distributing the extension, update `allow_origins` in `agent/main.py` to the exact extension ID (e.g., `"chrome-extension://<extension-id>"`).
+> **CORS**: During development we allow all origins (`*`). Before distributing the extension, set `allow_origins` in `agent/main.py` to your extension ID, e.g. `"chrome-extension://<extension-id>"`.
 
 ## Install the Chrome extension
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked** and choose the `extension/` directory
-4. (Optional) Pin the CiteEverythingForMe icon for quicker access
+4. (Optional) Pin the CiteEverythingForMe icon for quick access
+
+_Placeholder icons are provided in `extension/icons/`; replace them with branded assets before publishing._
 
 ## Use the extension
 
-1. Browse to any page you want to cite
-2. Click the extension icon to open the popup
-3. Verify captured URLs (clear or keep accumulating)
-4. Choose citation style and toggle **Use AI** if desired
-5. Click **Generate Citations** to download `citations.txt`
+1. Browse to any page you want to cite — the content script sends the URL to the background service worker.
+2. Click the extension icon to open the popup. Every captured URL appears one per line in the textarea (you can add, edit, or remove entries manually).
+3. Choose citation style and toggle **Use AI** if desired.
+4. Click **Generate Citations**. The popup posts the full URL list to the backend and downloads `citations.txt` via the Chrome downloads API.
+5. Use **Clear URLs** to reset the list before starting a new batch.
 
 ### Use the REST API directly
 
@@ -81,11 +83,18 @@ curl -X POST "http://localhost:8000/api/citations/generate" \
 
 ```
 shared/            # Citation engine shared by backend & extension
-agent/            # FastAPI app (main.py), ConnectOnion integration (agent_setup.py), request models (models.py), tools/
+agent/             # FastAPI app (main.py), ConnectOnion integration (agent_setup.py), request models (models.py), tools/
 extension/         # Manifest V3 browser extension
-docs/              # Prompt, UNSW notes, usage instructions
-tests/             # Unit tests covering the shared citation engine
+ docs/             # Prompt, UNSW notes, usage instructions
+tests/             # Unit tests covering the shared engine and API
 ```
+
+### Notable files
+
+- `agent/main.py` – FastAPI endpoints (`/api/citations/generate`, `/api/citations/styles`, `/health`)
+- `agent/agent_setup.py` – ConnectOnion agent creation (`generate_citation_ai_with_urls`)
+- `shared/citation_generator.py` – Citation logic (author extraction, formatting helpers)
+- `extension/popup/popup.js` – Popup controller (URL list, fetch, Chrome downloads integration)
 
 ## Documentation
 
@@ -96,10 +105,10 @@ tests/             # Unit tests covering the shared citation engine
 
 ## Troubleshooting
 
-- **"Error generating citations"**: Ensure `uvicorn agent.main:app --reload` is running and accessible.
-- **CORS errors**: Adjust `allow_origins` in `agent/main.py` to match your extension ID.
-- **Missing URLs in popup**: Only tabs opened/visited after loading the extension are captured; use the popup’s **Clear URLs** button before starting a new batch.
-- **AI mode behaves unexpectedly**: Verify the backend log output—exceptions are returned inline in the generated text file.
+- **"Error generating citations"**: Ensure `uvicorn agent.main:app --reload` is running and reachable.
+- **CORS errors**: Adjust `allow_origins` in `agent/main.py` to match your extension ID (or `*` for dev).
+- **Missing URLs in popup**: Only tabs opened/visited after loading the extension are captured; use **Clear URLs** if the list contains stale entries.
+- **AI mode behaves unexpectedly**: Check uvicorn logs—any exceptions are surfaced inline in the generated text file.
 
 ## Testing
 
@@ -108,7 +117,8 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Tests currently verify the shared citation engine. Extend with FastAPI client tests as needed.
+- `tests/test_citation_generator.py` exercises the shared citation engine.
+- `tests/test_api.py` uses FastAPI’s TestClient to verify deterministic and AI citation generation.
 
 ## Contributing & license
 
