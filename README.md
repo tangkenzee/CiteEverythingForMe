@@ -1,164 +1,116 @@
-# Academic Citation Generator Agent
+# CiteEverythingForMe
 
-ALL your citations at once, no more searching one by one. 
-CiteEverythingForME is a ConnectOnion-powered agent designed for university students to generate properly formatted academic citations for their written reports and formal papers.
+AI-assisted academic citation generation for the web. A Manifest V3 Chrome extension captures pages you are viewing and a FastAPI backend formats citations across UNSW Harvard, Harvard, APA, MLA, Chicago, IEEE, and Vancouver styles. Download a single `citations.txt` file in one click.
 
-## Features
+## Key features
 
-- **Multiple Citation Styles**: Supports 7 major academic formats:
-  - Harvard (default) - UK/Australia universities
-  - UNSW - UNSW Harvard referencing style (University of New South Wales)
-  - MLA - Humanities and literature
-  - Chicago - Versatile, many disciplines
-  - APA - Social sciences and psychology
-  - IEEE - Engineering and technology
-  - Vancouver - Medical and scientific fields
+- Manifest V3 extension that collects URLs from the active browser tab
+- Bulk citation generation via `POST /api/citations/generate`
+- Optional ConnectOnion AI mode for natural-language citation requests
+- Robust author extraction (meta tags, JSON-LD, bylines, domain fallback)
+- Plain-text download (`citations_style_count.txt`) ready for copy/paste
 
-- Fetches webpage titles and metadata automatically
-- Generates both in-text citations and reference list entries
-- Stores citations by style for easy retrieval
-- Handles errors gracefully
-- Natural language interface - just ask in plain English
+## Prerequisites
 
-## Setup
+- Python 3.9+
+- Google Chrome (or Chromium-based browser)
+- Git
 
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Install and set up the backend service
 
-2. **Run the agent:**
-   ```bash
-   python agent.py
-   ```
-   
-   This starts an interactive session. **You provide your own URLs** when prompted:
-   ```
-   Your request: Generate an APA citation for https://www.your-source.com
-   Your request: Generate a UNSW citation for https://www.example.com
-   Your request: Generate Harvard citations for https://url1.com and https://url2.com
-   Your request: quit
-   ```
-
-**Note:** This agent uses ConnectOnion's hosted model (`co/gpt-4o-mini`), so no API key configuration is required!
-
-## Usage
-
-### Basic Usage
-
-**Interactive Mode (Recommended):**
 ```bash
-python agent.py
-# Then enter your requests with your own URLs:
-# Your request: Generate an APA citation for https://www.your-source.com
-# Your request: Generate a UNSW citation for https://www.example.com
-# Your request: Generate Harvard citations for https://url1.com and https://url2.com
+# Clone the repository
+git clone <repository-url>
+cd CiteEverythingForMe
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate         # Windows: venv\Scripts\activate
+
+# Install dependencies (fastapi, uvicorn, connectonion, etc.)
+pip install -r requirements.txt
+
+# (Optional) install dev extras (pytest, linting)
+pip install -e ".[dev]"
 ```
 
-**Or use in Python code with your own URLs:**
-```python
-from agent import agent
+## Start the backend
 
-# You provide your own URLs
-your_url = "https://www.your-research-source.com"
-result = agent.input(f"Generate a Harvard citation for {your_url}")
-print(result)
-
-# Generate an MLA citation for your URL
-result = agent.input(f"Generate an MLA citation for {your_url}")
-print(result)
-
-# Generate a UNSW citation (for UNSW students)
-result = agent.input(f"Generate a UNSW citation for {your_url}")
-print(result)
-
-# Generate multiple styles for the same URL
-result = agent.input(f"Generate APA and Chicago citations for {your_url}")
-print(result)
-
-# View all citations in a specific style
-result = agent.input("Show me all my Harvard citations")
-print(result)
-
-# List available citation styles
-result = agent.input("What citation styles are available?")
-print(result)
+```bash
+uvicorn agent.main:app --reload
 ```
 
-### Citation Formats
+- API root: `http://localhost:8000`
+- Swagger UI: `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
 
-The agent generates two types of citations for each style:
+> **CORS**: During development we allow all origins (`*`). Before distributing the extension, update `allow_origins` in `agent/main.py` to the exact extension ID (e.g., `"chrome-extension://<extension-id>"`).
 
-- **In-text citation** - For use within your paper
-- **Reference list entry** - For your bibliography/references section
+## Install the Chrome extension
 
-Each citation style follows its specific academic formatting rules. Examples:
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked** and choose the `extension/` directory
+4. (Optional) Pin the CiteEverythingForMe icon for quicker access
 
-**Harvard Style:**
-- In-text: `(Example Domain, 2025)`
-- Reference: `Example Domain 2025, www.example.com, viewed 09 November 2025, <https://www.example.com>.`
+## Use the extension
 
-**UNSW Style (UNSW Harvard Referencing):**
-- In-text: `(Example 2025)`
-- Reference: `Example 2025, Example Domain, accessed 09 November 2025, <https://www.example.com>.`
-- Note: UNSW style follows the University of New South Wales Harvard referencing guidelines, with author/organisation name derived from page content when available
+1. Browse to any page you want to cite
+2. Click the extension icon to open the popup
+3. Verify captured URLs (clear or keep accumulating)
+4. Choose citation style and toggle **Use AI** if desired
+5. Click **Generate Citations** to download `citations.txt`
 
-**MLA Style:**
-- In-text: `("Example Domain")`
-- Reference: `"Example Domain." www.example.com, 09 Nov. 2025, https://www.example.com.`
+### Use the REST API directly
 
-**APA Style:**
-- In-text: `(Example Domain, 2025)`
-- Reference: `Example Domain. (2025, November 09). www.example.com. https://www.example.com`
+```bash
+curl -X POST "http://localhost:8000/api/citations/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": ["https://example.com", "https://example.org"],
+    "style": "unsw",
+    "use_ai": false
+  }' \
+  --output citations.txt
+```
 
-## Tools Available
+- `use_ai: true` routes the request through the ConnectOnion agent (no extra `query` field needed)
+- `GET /api/citations/styles` returns the supported styles list
 
-The agent has access to these tools:
+## Project layout
 
-- `fetch_page_title(url)` - Fetch the title of a webpage
-- `generate_citation(url, style)` - Generate citations in specified style (harvard, unsw, mla, chicago, apa, ieee, vancouver)
-- `get_all_citations(style)` - Retrieve all stored citations in a specific style
-- `list_available_styles()` - List all supported citation formats
-- `clear_citations()` - Clear all stored citations
+```
+shared/            # Citation engine shared by backend & extension
+agent/            # FastAPI app (main.py), ConnectOnion integration (agent_setup.py), request models (models.py), tools/
+extension/         # Manifest V3 browser extension
+docs/              # Prompt, UNSW notes, usage instructions
+tests/             # Unit tests covering the shared citation engine
+```
 
-## Citation Styles Guide
+## Documentation
 
-| Style | Common Use | Example Fields |
-|-------|-----------|----------------|
-| **Harvard** | UK/Australia universities | General academic work |
-| **UNSW** | University of New South Wales | UNSW-specific Harvard style |
-| **MLA** | Humanities, literature | English, history, arts |
-| **Chicago** | Versatile, many fields | History, business, social sciences |
-| **APA** | Social sciences | Psychology, education, sociology |
-| **IEEE** | Engineering, technology | Computer science, engineering |
-| **Vancouver** | Medical, scientific | Medicine, health sciences, biology |
+- Extension install & behavior: `extension/README.md`
+- Usage guide: `docs/USAGE_GUIDE.md`
+- UNSW Harvard referencing notes: `docs/UNSW_Harvard_referencing.md`
+- ConnectOnion prompt: `docs/prompt.md`
 
-## Requirements
+## Troubleshooting
 
-- Python 3.8+
-- ConnectOnion framework
-- requests
-- beautifulsoup4
-- lxml
+- **"Error generating citations"**: Ensure `uvicorn agent.main:app --reload` is running and accessible.
+- **CORS errors**: Adjust `allow_origins` in `agent/main.py` to match your extension ID.
+- **Missing URLs in popup**: Only tabs opened/visited after loading the extension are captured; use the popup’s **Clear URLs** button before starting a new batch.
+- **AI mode behaves unexpectedly**: Verify the backend log output—exceptions are returned inline in the generated text file.
 
-## Notes
+## Testing
 
-- **Default Style**: If you don't specify a style, the agent defaults to Harvard
-- **Multiple Styles**: You can generate the same URL in multiple citation styles
-- **Style Storage**: Citations are stored by style, so you can retrieve all citations in a specific format
-- **Academic Standards**: All citations follow official formatting guidelines for each style
-- **Automatic File Export**: All citations are automatically saved to `citations_output.txt` for easy copying
-- **Duplicate Prevention**: The same citation (URL + style) won't be added twice to the output file
-- **Behavior Tracking**: The agent uses ConnectOnion's automatic behavior tracking
-- **Error Handling**: If a page can't be accessed, the agent still generates a citation with "Unknown Title"
+```bash
+pip install -e ".[dev]"
+pytest
+```
 
-## Tips for Students
+Tests currently verify the shared citation engine. Extend with FastAPI client tests as needed.
 
-1. **Specify your style** - Always mention which citation style you need (e.g., "Generate an APA citation...")
-2. **UNSW Students** - If you're a UNSW student, use the UNSW style which follows UNSW's specific Harvard referencing guidelines. See `UNSW_Harvard_referencing.md` for detailed formatting rules.
-3. **Check with your institution** - Some universities have specific variations of citation styles
-4. **Verify URLs** - Make sure URLs are accessible and correct before generating citations
-5. **Multiple sources** - You can generate citations for multiple URLs in one request
-6. **Style consistency** - Use the same citation style throughout your paper
-7. **Author extraction** - The agent automatically extracts author/organisation names from page content when available, falling back to domain name if not found
+## Contributing & license
+
+Contributions are welcome—feel free to open issues or pull requests. Licensed under the MIT License (`LICENSE`).
 
