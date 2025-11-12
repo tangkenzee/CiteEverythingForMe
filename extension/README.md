@@ -1,13 +1,13 @@
 # CiteEverythingForMe Chrome Extension
 
-Manifest V3 extension that captures URLs from the active tab and sends them to the FastAPI backend to generate citations.
+Manifest V3 extension that lets users add the current tab’s URL to a list and request citations from the FastAPI backend.
 
 ## Features
 
-- Captures the current tab URL automatically via `content/content.js`
-- Maintains a running list of URLs in the background service worker
-- Popup UI to review URLs, choose a citation style, and toggle AI mode
-- Calls `POST /api/citations/generate` and downloads the resulting `citations.txt`
+- Manual URL capture via **Add Current Page** button
+- Maintains a list of URLs in the background service worker
+- Popup UI to review/edit URLs, choose style, toggle AI
+- Calls `POST /api/citations/generate` and downloads the resulting `citations.txt` using the Chrome downloads API
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ Manifest V3 extension that captures URLs from the active tab and sends them to t
 
 1. Browse to any page you want to cite
 2. Click the CiteEverythingForMe extension icon
-3. Review the captured URLs in the popup
+3. Press **Add Current Page** to append the active tab URL (repeat as needed) or paste URLs manually
 4. Select the citation style and optionally enable **Use AI**
 5. Click **Generate Citations** to download `citations.txt`
 6. Use **Clear URLs** to reset the list
@@ -37,10 +37,9 @@ Manifest V3 extension that captures URLs from the active tab and sends them to t
 ## File Overview
 
 - `manifest.json` – Extension manifest (Manifest V3)
-- `content/content.js` – Captures active tab URL and sends it to the background script
 - `background/background.js` – Stores URL list and responds to popup requests
 - `popup/popup.html` – Popup UI layout
-- `popup/popup.js` – Handles user actions and backend integration
+- `popup/popup.js` – Handles user actions and backend integration (add current page, generate citations, clear list)
 - `icons/` – Placeholder icons (provide your own before publishing)
 
 ## Notes

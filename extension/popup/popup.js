@@ -1,16 +1,31 @@
 const urlListEl = document.getElementById("url-list");
 const styleEl = document.getElementById("style");
 const useAiEl = document.getElementById("use-ai");
+const addBtn = document.getElementById("add-btn");
 const generateBtn = document.getElementById("generate-btn");
 const clearBtn = document.getElementById("clear-btn");
 
-function updateUrlList() {
+function syncFromBackground() {
   chrome.runtime.sendMessage({ action: "get_urls" }, (response) => {
     urlListEl.value = (response?.urls || []).join("\n");
   });
 }
 
-updateUrlList();
+syncFromBackground();
+
+addBtn.addEventListener("click", () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const url = tabs[0]?.url;
+    if (!url) {
+      alert("No active tab URL found.");
+      return;
+    }
+
+    chrome.runtime.sendMessage({ action: "add_url", url }, (response) => {
+      urlListEl.value = (response?.urls || []).join("\n");
+    });
+  });
+});
 
 clearBtn.addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "clear_urls" }, () => {

@@ -57,10 +57,10 @@ _Placeholder icons are provided in `extension/icons/`; replace them with branded
 
 ## Use the extension
 
-1. Browse to any page you want to cite — the content script sends the URL to the background service worker.
-2. Click the extension icon to open the popup. Every captured URL appears one per line in the textarea (you can add, edit, or remove entries manually).
+1. Browse to a page you want to cite and click the extension icon.
+2. Press **Add Current Page** to capture the active tab URL (repeat on as many tabs as you like). You can also paste or edit URLs manually—one per line.
 3. Choose citation style and toggle **Use AI** if desired.
-4. Click **Generate Citations**. The popup posts the full URL list to the backend and downloads `citations.txt` via the Chrome downloads API.
+4. Click **Generate Citations** to download `citations.txt` via the Chrome downloads API.
 5. Use **Clear URLs** to reset the list before starting a new batch.
 
 ### Use the REST API directly
