@@ -28,7 +28,5 @@ def get_citation(url: str) -> dict:
         raise RuntimeError(f"CiteAs rejected {url}: {exc.response.status_code}") from exc
     except httpx.RequestError as exc:
         raise RuntimeError(f"Unable to reach CiteAs for {url}: {exc}") from exc
-    finally:
-        # makes sure you stay under the rate limit
-        time.sleep(0.5)
+
 

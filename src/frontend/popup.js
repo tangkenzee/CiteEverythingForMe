@@ -89,8 +89,30 @@ const handleClear = async () => {
   setStatus("All URLs cleared.");
 };
 
+const buildInTextCitation = (citation) => {
+  const authorYearMatch = citation.match(/^([^.(]+?)\s*\((\d{4})\)/);
+  if (authorYearMatch) {
+    const author = authorYearMatch[1].trim();
+    const year = authorYearMatch[2];
+    return `(${author}, ${year})`;
+  }
+  const yearMatch = citation.match(/\b(19|20)\d{2}\b/);
+  if (yearMatch) {
+    return `(${yearMatch[0]})`;
+  }
+  return '';
+};
+
 const downloadCitations = (citations) => {
-  const blob = new Blob([citations.join("\n")], { type: "text/plain" });
+  const formatted = citations
+    .map((citation, index) => {
+      const number = `${index + 1}.`;
+      const intext = buildInTextCitation(citation);
+      return `${number}\nIn-text citation:\n${intext}\nReference:\n${citation}\n`;
+    })
+    .join("\n");
+
+  const blob = new Blob([formatted], { type: "text/plain" });
   const downloadUrl = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = downloadUrl;

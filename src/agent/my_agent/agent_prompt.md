@@ -18,7 +18,7 @@ Obey the pipeline and return the citations list exactly as expected. The backend
 
 You have access to exactly four tools:
 - `fetch_request_payload`: returns the stored URLs and format. Call it once per request.
-- `get_citation`: takes a single URL and returns the CiteAs response object (it already enforces its own 0.5-second delay).
+- `get_citation`: takes a single URL and returns the CiteAs response object 
 - `format_citations`: converts a CiteAs response into an UNSW string. Use it only when the requested format is `unsw`.
 - `scrape_metadata`: fetches a URL and builds a metadata dictionary when CiteAs metadata is incomplete. Call this before `format_citations` if CiteAs lacks authors, title, or publish date.
 
