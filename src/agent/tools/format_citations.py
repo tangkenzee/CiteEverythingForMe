@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 
@@ -8,32 +9,53 @@ def format_citations(citations_object: dict[str, Any]) -> str:
 
     metadata = citations_object.get("metadata") or {}
     authors = _format_authors(metadata.get("author") or metadata.get("authors"))
-    title = _extract_title(metadata)
     year = _extract_year(metadata)
-    publisher = _extract_first_nonempty(
+    site_name = _extract_site_name(metadata)
+    sponsor = _extract_first_nonempty(
         metadata.get("publisher"),
+        metadata.get("sponsor"),
         metadata.get("publisher-place"),
     )
     url = _extract_first_nonempty(
         metadata.get("url"),
         citations_object.get("url"),
+        metadata.get("URL"),
         metadata.get("doi"),
     )
+    accessed = _format_accessed_date(date.today())
 
-    return f"{authors} ({year}). {title}. {publisher}. Available at: {url}."
+    author_year = " ".join(part for part in (authors, year) if part).strip()
+    site_name_text = f"_{site_name}_" if site_name else ""
+    accessed_text = f"accessed {accessed}" if accessed else ""
+    url_text = f"<{url}>" if url else ""
+
+    components = [
+        component
+        for component in (
+            author_year,
+            site_name_text,
+            sponsor,
+            accessed_text,
+            url_text,
+        )
+        if component
+    ]
+
+    citation = ", ".join(components)
+    return f"{citation}." if citation else ""
 
 
 def _format_authors(authors: Any) -> str:
     if isinstance(authors, str):
-        return authors
+        return authors.strip()
     if not authors:
-        return "Missing data"
+        return ""
     formatted = []
     for author in authors:
         formatted_name = _format_author(author)
         if formatted_name:
             formatted.append(formatted_name)
-    return ", ".join(formatted) if formatted else "Missing data"
+    return ", ".join(formatted)
 
 
 def _format_author(author: Any) -> str:
@@ -53,8 +75,8 @@ def _format_author(author: Any) -> str:
         if family and given:
             initials = "".join(f"{part[0].upper()}." for part in given.split() if part)
             return f"{family}, {initials}"
-        return family or given or "Missing data"
-    return "Missing data"
+        return family or given or ""
+    return ""
 
 
 def _extract_year(metadata: dict[str, Any]) -> str:
@@ -71,14 +93,28 @@ def _extract_year(metadata: dict[str, Any]) -> str:
             and date_parts[0]
         ):
             return str(date_parts[0][0])
-    return "Missing data"
+    return ""
 
 
 def _extract_first_nonempty(*values: Any) -> str:
     for value in values:
         if value:
             return str(value)
-    return "Missing data"
+    return ""
+
+
+def _extract_site_name(metadata: dict[str, Any]) -> str:
+    return _extract_first_nonempty(
+        metadata.get("site"),
+        metadata.get("site_name"),
+        metadata.get("site-title"),
+        metadata.get("title"),
+        metadata.get("name"),
+    )
+
+
+def _format_accessed_date(accessed_date: date) -> str:
+    return f"{accessed_date.day} {accessed_date.strftime('%B')} {accessed_date.year}"
 
 
 def _extract_title(metadata: dict[str, Any]) -> str:
@@ -94,8 +130,8 @@ def _extract_title(metadata: dict[str, Any]) -> str:
                 if isinstance(entry, dict)
                 else entry
             )
-            if candidate and candidate != "Missing data":
-                return str(candidate)
+    if candidate:
+        return str(candidate)
 
-    return "Missing data"
+    return ""
 

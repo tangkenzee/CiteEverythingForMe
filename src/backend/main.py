@@ -8,14 +8,17 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .models import GenerateRequest
-from .schemas import CitationResponse
+from .schemas import CitationRequest, CitationResponse
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from src.agent.my_agent.app import build_agent_prompt, citation_agent  # noqa: E402
+from src.agent.my_agent.app import citation_agent  # noqa: E402
+from src.agent.tools.request_payload import (
+    clear_request_payload,
+    set_request_payload,
+)
 
 app = FastAPI(
     title="CiteEverythingForMe",
@@ -33,14 +36,17 @@ app.add_middleware(
 
 
 @app.post("/generate", response_model=CitationResponse)
-async def generate_citations(request: GenerateRequest) -> CitationResponse:
+async def generate_citations(request: CitationRequest) -> CitationResponse:
     """Generate formatted citations for up to five URLs."""
-    prompt = build_agent_prompt(request.urls, request.format)
+    set_request_payload(request.urls, request.format)
+    prompt = json.dumps({"command": "generate_citations"})
 
     try:
         raw_response = await asyncio.to_thread(citation_agent.input, prompt)
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
+    finally:
+        clear_request_payload()
 
     try:
         parsed = json.loads(raw_response)

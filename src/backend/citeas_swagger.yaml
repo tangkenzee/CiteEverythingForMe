@@ -1,0 +1,163 @@
+openapi: 3.1.0
+info:
+  title: CiteAs REST API
+  description: |
+    Public API that surfaces citation metadata, export formats, and discovery
+    provenance for DOIs, URLs, and keywords. Append `?email=you@example.com`
+    to every request so the CiteAs team can track usage.
+  version: 0.0.1
+  contact:
+    name: CiteAs.org
+servers:
+  - url: https://api.citeas.org
+    description: Public CiteAs service
+paths:
+  /:
+    get:
+      summary: Retrieve API status
+      description: Returns an object describing the current API version and notices.
+      operationId: getApiStatus
+      parameters:
+        - name: email
+          in: query
+          description: Optional email address for usage tracking.
+          required: false
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: API status object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiStatus"
+  /product/{resource}:
+    get:
+      summary: Retrieve citations for a resource
+      description: |
+        Accepts a DOI, URL, or keyword and returns citations, exports,
+        metadata, and provenance for the first match.
+      operationId: getCitationsForResource
+      parameters:
+        - name: resource
+          in: path
+          description: DOI, URL, or keyword to resolve.
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Optional email address for usage tracking.
+          required: false
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: Citations object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitationsObject"
+components:
+  schemas:
+    ApiStatus:
+      type: object
+      properties:
+        documentation_url:
+          type: string
+          format: uri
+        msg:
+          type: string
+        version:
+          type: string
+          example: 0.0.1
+      required:
+        - documentation_url
+        - msg
+        - version
+    CitationsObject:
+      type: object
+      properties:
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/CitationObject"
+        exports:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExportObject"
+        metadata:
+          $ref: "#/components/schemas/MetadataObject"
+        name:
+          type: string
+        provenance:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProvenanceObject"
+        url:
+          type: string
+    CitationObject:
+      type: object
+      properties:
+        citation:
+          type: string
+        style_fullname:
+          type: string
+        style_shortname:
+          type: string
+      required:
+        - citation
+    ExportObject:
+      type: object
+      properties:
+        export:
+          type: string
+        export_name:
+          type: string
+    MetadataObject:
+      type: object
+      additionalProperties: true
+      properties:
+        DOI:
+          type: string
+        URL:
+          type: string
+        author:
+          type: array
+          items:
+            $ref: "#/components/schemas/Author"
+        id:
+          type: string
+        title:
+          type: string
+        year:
+          type: integer
+    Author:
+      type: object
+      properties:
+        family:
+          type: string
+        given:
+          type: string
+    ProvenanceObject:
+      type: object
+      properties:
+        content_url:
+          type: string
+        found_via_proxy_type:
+          type: string
+        has_content:
+          type: boolean
+        host:
+          type: string
+        name:
+          type: string
+        parent_step_name:
+          type: string
+        parent_subject:
+          type: string
+        subject:
+          type: string
+
