@@ -1,1 +1,3 @@
-from .schemas import CitationRequest as GenerateRequest
+from .schemas import CitationRequest
+
+GenerateRequest = CitationRequest

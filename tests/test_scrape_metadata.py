@@ -1,5 +1,3 @@
-import pytest
-
 from src.agent.tools.scrape_metadata import scrape_metadata
 
 

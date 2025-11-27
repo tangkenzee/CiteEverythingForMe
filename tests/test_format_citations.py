@@ -1,5 +1,3 @@
-from datetime import date
-
 from src.agent.tools.format_citations import format_citations
 
 
