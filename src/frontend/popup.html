@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CiteEverythingForMe</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h1>CiteEverythingForMe</h1>
+      <p class="subtitle">Store URLs and generate citations without leaving the browser.</p>
+
+      <section class="controls">
+        <button id="add-url-button" type="button">Add URL</button>
+        <button id="clear-urls-button" type="button">Clear URLs</button>
+      </section>
+
+      <section>
+        <strong>Saved URLs</strong>
+        <ul id="url-list" class="url-list">
+          <li class="empty">No URLs saved yet.</li>
+        </ul>
+      </section>
+
+      <section class="controls">
+        <label for="format-select">Citation Style:</label>
+        <select id="format-select">
+          <option value="harvard">Harvard</option>
+          <option value="unsw harvard">UNSW Harvard</option>
+          <option value="mla">MLA</option>
+        </select>
+      </section>
+
+      <section>
+        <button id="generate-button" type="button" class="primary">Generate Citations</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
+
+

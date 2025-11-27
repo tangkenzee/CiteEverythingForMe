@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "CiteEverythingForMe",
+  "version": "0.1.0",
+  "description": "Generate citations for up to five URLs using ConnectOnion.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "CiteEverythingForMe"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "tabs", "activeTab"],
+  "host_permissions": ["http://localhost:8000/*", "https://localhost:8000/*"]
+}
+
+
