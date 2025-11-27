@@ -20,7 +20,7 @@ def get_citation(url: str) -> dict:
     # ADD your email here
     params = {"email": "test@example.com"}
     try:
-        response = httpx.get(endpoint, params=params, timeout=15.0)
+        response = httpx.get(endpoint, params=params, timeout=3.0)
         response.raise_for_status()
 
         return response.json()

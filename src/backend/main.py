@@ -39,27 +39,27 @@ app.add_middleware(
 async def generate_citations(request: CitationRequest) -> CitationResponse:
     """Generate formatted citations for up to five URLs."""
     
-    set_request_payload(request.urls, request.format)
     prompt = json.dumps({"command": "generate_citations"})
+    citations: list[str] = []
 
-    try:
-        raw_response = await asyncio.to_thread(citation_agent.input, prompt)
-        parsed = json.loads(raw_response)
-        citations = parsed.get("citations")
-
-        if not isinstance(citations, list):
-            raise ValueError("Citations field missing or malformed.")
-
-        citations = [str(item) for item in citations]
-
-    except RuntimeError as exc:
-        raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="Agent returned invalid JSON.")
-    except ValueError as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-    finally:
-        clear_request_payload()
+    for url in request.urls:
+        set_request_payload([url], request.format)
+        try:
+            raw_response = await asyncio.to_thread(citation_agent.input, prompt)
+            parsed = json.loads(raw_response)
+            current = parsed.get("citations")
+            if not isinstance(current, list):
+                raise ValueError("Agent response missing citations list.")
+            citations.extend(str(item) for item in current)
+            
+        except RuntimeError as exc:
+            raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=500, detail="Agent returned invalid JSON.")
+        except ValueError as exc:
+            raise HTTPException(status_code=500, detail=str(exc))
+        finally:
+            clear_request_payload()
 
     return CitationResponse(citations=citations)
 

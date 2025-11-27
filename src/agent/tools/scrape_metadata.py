@@ -23,7 +23,8 @@ def scrape_metadata(url: str) -> dict[str, Any]:
     except httpx.RequestError as exc:
         raise RuntimeError(f"Unable to reach {url}: {exc}") from exc
     except httpx.HTTPStatusError as exc:
-        raise RuntimeError(f"Citation page rejected {url}: {exc.response.status_code}") from exc
+        # Avoid hard failure when blocked (403) or similar; return empty metadata to let the agent continue.
+        return {"metadata": {}}
 
     content = trafilatura.extract_metadata(response.text)
     if not content:

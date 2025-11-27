@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, HttpUrl, validator
 
-_ALLOWED_FORMATS = {"harvard", "mla", "unsw harvard"}
+_ALLOWED_FORMATS = {"harvard", "mla", "unsw"}
 
 
 class CitationRequest(BaseModel):
@@ -20,6 +20,8 @@ class CitationRequest(BaseModel):
     @validator("format", pre=True)
     def normalize_format(cls, value: str) -> str:
         cleaned = value.lower().strip()
+        if cleaned == "unsw harvard":
+            cleaned = "unsw"
         if cleaned not in _ALLOWED_FORMATS:
             allowed = ", ".join(sorted(_ALLOWED_FORMATS))
             raise ValueError(f"format must be one of: {allowed}.")
