@@ -43,21 +43,19 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
 
     try:
         raw_response = await asyncio.to_thread(citation_agent.input, prompt)
-    except RuntimeError as exc:
-        raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
-    finally:
-        clear_request_payload()
-
-    try:
         parsed = json.loads(raw_response)
         citations = parsed.get("citations")
         if not isinstance(citations, list):
             raise ValueError("Citations field missing or malformed.")
         citations = [str(item) for item in citations]
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
     except json.JSONDecodeError:
         raise HTTPException(status_code=500, detail="Agent returned invalid JSON.")
     except ValueError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        clear_request_payload()
 
     return CitationResponse(citations=citations)
 

@@ -15,6 +15,7 @@ def get_citation(url: str) -> dict:
     try:
         response = httpx.get(endpoint, params=params, timeout=15.0)
         response.raise_for_status()
+
         return response.json()
     except httpx.HTTPStatusError as exc:
         raise RuntimeError(f"CiteAs rejected {url}: {exc.response.status_code}") from exc
