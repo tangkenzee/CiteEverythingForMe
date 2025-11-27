@@ -6,7 +6,10 @@ from typing import Any, Mapping
 import json
 
 
-def format_citations(citations_object: dict[str, Any] | str | Mapping[str, Any]) -> str:
+def format_citations(
+    citations_object: dict[str, Any] | str | Mapping[str, Any],
+    **_: Any,
+) -> str:
     """Return a UNSW Harvard citation from CiteAs metadata.
 
     Args:
@@ -15,15 +18,6 @@ def format_citations(citations_object: dict[str, Any] | str | Mapping[str, Any])
     Returns:
         A formatted citation string (or empty string if no data is available).
     """
-        #  citations_object is a dictionary with the following keys: 
-        # - citations: a list of citation objects
-        # - metadata: a dictionary with the metadata of the citation
-        # - status: the status of the citation
-        # - error: the error message if the citation is not found
-        # - message: the message of the response
-        # - url: the url of the response
-        # - format: the format of the response
-        # - style: the style of the response
 
     citations_object = _normalize_citations_object(citations_object)
 

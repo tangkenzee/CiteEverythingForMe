@@ -38,6 +38,7 @@ app.add_middleware(
 @app.post("/generate", response_model=CitationResponse)
 async def generate_citations(request: CitationRequest) -> CitationResponse:
     """Generate formatted citations for up to five URLs."""
+    
     set_request_payload(request.urls, request.format)
     prompt = json.dumps({"command": "generate_citations"})
 
@@ -45,9 +46,12 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
         raw_response = await asyncio.to_thread(citation_agent.input, prompt)
         parsed = json.loads(raw_response)
         citations = parsed.get("citations")
+
         if not isinstance(citations, list):
             raise ValueError("Citations field missing or malformed.")
+
         citations = [str(item) for item in citations]
+
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
     except json.JSONDecodeError:

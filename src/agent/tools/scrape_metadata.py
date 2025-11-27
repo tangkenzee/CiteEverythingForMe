@@ -30,6 +30,8 @@ def scrape_metadata(url: str) -> dict[str, Any]:
         downloaded = trafilatura.fetch_url(url)
         content = trafilatura.extract_metadata(downloaded or response.text) or {}
 
+    content = _normalize_trafilatura_metadata(content)
+
     title = content.get("title") or ""
     authors = content.get("authors") or content.get("author")
     if isinstance(authors, str):
@@ -54,4 +56,29 @@ def scrape_metadata(url: str) -> dict[str, Any]:
         metadata["issued"] = {"date-parts": [[int(year)] if year.isdigit() else [year]]}
 
     return {"metadata": metadata}
+
+
+def _normalize_trafilatura_metadata(content: Any) -> dict[str, Any]:
+    """Convert trafilatura’s metadata output into a dict.
+
+    Args:
+        content: Either a dict or trafilatura Document object.
+
+    Returns:
+        A plain dictionary with metadata keys.
+    """
+    if isinstance(content, dict):
+        return content
+    metadata = {}
+    if hasattr(content, "metadata"):
+        metadata.update(getattr(content, "metadata") or {})
+    if hasattr(content, "__dict__"):
+        metadata.update(
+            {
+                key: value
+                for key, value in vars(content).items()
+                if key not in metadata and value
+            }
+        )
+    return metadata
 
