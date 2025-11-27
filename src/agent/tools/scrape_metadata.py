@@ -20,10 +20,7 @@ def scrape_metadata(url: str) -> dict[str, Any]:
     try:
         response = httpx.get(url, timeout=15.0, follow_redirects=True)
         response.raise_for_status()
-    except httpx.RequestError as exc:
-        raise RuntimeError(f"Unable to reach {url}: {exc}") from exc
-    except httpx.HTTPStatusError as exc:
-        # Avoid hard failure when blocked (403) or similar; return empty metadata to let the agent continue.
+    except Exception:  # pragma: no cover - network failures
         return {"metadata": {}}
 
     content = trafilatura.extract_metadata(response.text)
@@ -69,8 +66,12 @@ def _normalize_trafilatura_metadata(content: Any) -> dict[str, Any]:
         A plain dictionary with metadata keys.
     """
     if isinstance(content, dict):
+        if isinstance(content.get("metadata"), dict):
+            metadata = content["metadata"].copy()
+            metadata.update({k: v for k, v in content.items() if k != "metadata" and v is not None})
+            return metadata
         return content
-    metadata = {}
+    metadata: dict[str, Any] = {}
     if hasattr(content, "metadata"):
         metadata.update(getattr(content, "metadata") or {})
     if hasattr(content, "__dict__"):
