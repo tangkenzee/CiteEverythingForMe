@@ -13,6 +13,7 @@ load_dotenv()
 
 _PROMPT_PATH = Path(__file__).resolve().parent / "agent_prompt.md"
 
+# connectonion best practice
 tools = [
     fetch_request_payload,
     fetch_cites,
@@ -20,6 +21,7 @@ tools = [
     get_metadata,
 ]
 
+# spin up an instance of the agent
 citation_agent = Agent(
     name="cite_everything_for_me",
     tools=tools,
