@@ -43,6 +43,8 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
             current = parsed.get("citations")
             if not isinstance(current, list):
                 raise ValueError("Agent response missing citations list.")
+
+            # append the citations to the list
             citations.extend(str(item) for item in current)
 
         except RuntimeError as exc:

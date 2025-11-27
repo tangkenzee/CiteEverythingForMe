@@ -7,7 +7,7 @@ The CiteEverythingForMe pipeline pairs a Chrome extension with a FastAPI backend
 
 - **Backend stack**: FastAPI server (`src/backend/main.py`) with `schemas.py` for request validation, `models.py` to alias the request, and a loop that calls `set_request_payload` for every URL before invoking the agent. Aggregates the per-URL `{"citations": [...]}` responses into a single list.
 
-- **Agent stack**: ConnectOnion agent (`src/agent/my_agent/app.py`) guided by `agent_prompt.md`. Tools under `src/agent/tools/` include `request_payload`, `get_citation`, `scrape_metadata`, and `format_citations`, each with dedicated tests.
+ - **Agent stack**: ConnectOnion agent (`src/agent/my_agent/app.py`) guided by `agent_prompt.md`. Tools under `src/agent/tools/` include `request_payload`, `fetch_cites`, `get_metadata`, and `format_UNSW`, each with dedicated tests.
 
 # Full Architecture (ASCII Diagram)
 ```
@@ -34,9 +34,9 @@ The CiteEverythingForMe pipeline pairs a Chrome extension with a FastAPI backend
             |
       if format == harvard/mla: take citation entry
       if format == unsw:
-        -> scrape_metadata (Trafilatura fallback)
+        -> get_metadata (Trafilatura fallback)
         -> merge scraped fields into metadata
-        -> format_citations(metadata)
+        -> format_UNSW(metadata)
             |
             v
         return {"citations": ["..."]}

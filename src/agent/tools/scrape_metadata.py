@@ -7,7 +7,7 @@ import httpx
 import trafilatura
 
 
-def scrape_metadata(url: str) -> dict[str, Any]:
+def get_metadata(url: str) -> dict[str, Any]:
     """Fetch a page and return metadata suitable for UNSW citations.
 
     Args:

@@ -1,4 +1,4 @@
-from src.agent.tools.scrape_metadata import scrape_metadata
+from src.agent.tools.scrape_metadata import get_metadata
 
 
 def test_scrape_metadata_success(monkeypatch):
@@ -20,7 +20,7 @@ def test_scrape_metadata_success(monkeypatch):
         "src.agent.tools.scrape_metadata.trafilatura.fetch_url",
         lambda url: "<html></html>",
     )
-    result = scrape_metadata("https://example.com")
+    result = get_metadata("https://example.com")
     assert result["metadata"]["title"] == "Scraped"
     assert result["metadata"]["author"] == ["Author"]
 
@@ -30,5 +30,5 @@ def test_scrape_metadata_failure(monkeypatch):
         raise RuntimeError("blocked")
 
     monkeypatch.setattr("src.agent.tools.scrape_metadata.httpx.get", failing_get)
-    result = scrape_metadata("https://example.com")
+    result = get_metadata("https://example.com")
     assert result["metadata"] == {}

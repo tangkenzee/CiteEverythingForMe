@@ -5,7 +5,7 @@ from urllib.parse import quote
 import httpx
 
 
-def get_citation(url: str) -> dict:
+def fetch_cites(url: str) -> dict:
     """Retrieve the CiteAs payload for a single URL.
 
     Args:

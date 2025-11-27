@@ -6,11 +6,11 @@ from typing import Any, Mapping
 import json
 
 
-def format_citations(
+def format_UNSW(
     citations_object: dict[str, Any] | str | Mapping[str, Any],
     **_: Any,
 ) -> str:
-    """Return a UNSW Harvard citation from CiteAs metadata.
+    """Return a UNSW citation from CiteAs metadata.
 
     Args:
         citations_object: Either the CiteAs response dict or a serialized/ mapping version of it.

@@ -1,6 +1,6 @@
 import pytest
 
-from src.agent.tools.get_citation import get_citation
+from src.agent.tools.get_citation import fetch_cites
 
 
 def test_get_citation_success(monkeypatch):
@@ -19,7 +19,7 @@ def test_get_citation_success(monkeypatch):
         return DummyResponse({"citations": [{"citation": "test citation"}]})
 
     monkeypatch.setattr("src.agent.tools.get_citation.httpx.get", fake_get)
-    result = get_citation("https://example.com")
+    result = fetch_cites("https://example.com")
     assert result["citations"][0]["citation"] == "test citation"
 
 
@@ -33,4 +33,4 @@ def test_get_citation_http_error(monkeypatch):
         lambda *args, **kwargs: ErrorResponse(),
     )
     with pytest.raises(RuntimeError):
-        get_citation("https://example.com")
+        fetch_cites("https://example.com")

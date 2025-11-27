@@ -5,9 +5,9 @@ from pathlib import Path
 from connectonion import Agent, load_dotenv
 
 from src.agent.tools.request_payload import fetch_request_payload
-from src.agent.tools.scrape_metadata import scrape_metadata
-from src.agent.tools.format_citations import format_citations
-from src.agent.tools.get_citation import get_citation
+from src.agent.tools.scrape_metadata import get_metadata
+from src.agent.tools.format_citations import format_UNSW
+from src.agent.tools.get_citation import fetch_cites
 
 load_dotenv()
 
@@ -15,9 +15,9 @@ _PROMPT_PATH = Path(__file__).resolve().parent / "agent_prompt.md"
 
 tools = [
     fetch_request_payload,
-    get_citation,
-    format_citations,
-    scrape_metadata,
+    fetch_cites,
+    format_UNSW,
+    get_metadata,
 ]
 
 citation_agent = Agent(
