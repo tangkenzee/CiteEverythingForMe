@@ -7,7 +7,14 @@ import json
 
 
 def format_citations(citations_object: dict[str, Any] | str | Mapping[str, Any]) -> str:
-    """Build a UNSW Harvard citation string from CiteAs metadata."""
+    """Return a UNSW Harvard citation from CiteAs metadata.
+
+    Args:
+        citations_object: Either the CiteAs response dict or a serialized/ mapping version of it.
+
+    Returns:
+        A formatted citation string (or empty string if no data is available).
+    """
         #  citations_object is a dictionary with the following keys: 
         # - citations: a list of citation objects
         # - metadata: a dictionary with the metadata of the citation
@@ -59,6 +66,14 @@ def format_citations(citations_object: dict[str, Any] | str | Mapping[str, Any])
 
 
 def _format_authors(authors: Any) -> str:
+    """Format the authors list into a comma-separated string.
+
+    Args:
+        authors: Either a string or iterable of author descriptors.
+
+    Returns:
+        Properly formatted author string or empty string when missing.
+    """
     if isinstance(authors, str):
         return authors.strip()
     if not authors:
@@ -72,6 +87,14 @@ def _format_authors(authors: Any) -> str:
 
 
 def _format_author(author: Any) -> str:
+    """Format a single author entry for the citation.
+
+    Args:
+        author: Single author representation (str or dict).
+
+    Returns:
+        Formatted author text (family, initials) or empty string when unavailable.
+    """
     if isinstance(author, str):
         return author
     if isinstance(author, dict):
@@ -93,6 +116,14 @@ def _format_author(author: Any) -> str:
 
 
 def _extract_year(metadata: dict[str, Any]) -> str:
+    """Extract the publication year from CiteAs metadata.
+
+    Args:
+        metadata: Metadata dictionary from CiteAs response.
+
+    Returns:
+        Year string if found, otherwise empty string.
+    """
     year = metadata.get("year")
     if year:
         return str(year)
@@ -110,6 +141,14 @@ def _extract_year(metadata: dict[str, Any]) -> str:
 
 
 def _extract_first_nonempty(*values: Any) -> str:
+    """Return the first truthy value converted to str.
+
+    Args:
+        values: Sequence of values to inspect.
+
+    Returns:
+        The first non-empty value as a string, or empty string if none.
+    """
     for value in values:
         if value:
             return str(value)
@@ -117,6 +156,14 @@ def _extract_first_nonempty(*values: Any) -> str:
 
 
 def _extract_site_name(metadata: dict[str, Any]) -> str:
+    """Extract a site name or fallback from metadata.
+
+    Args:
+        metadata: CiteAs metadata object.
+
+    Returns:
+        Site name string or empty.
+    """
     return _extract_first_nonempty(
         metadata.get("site"),
         metadata.get("site_name"),
@@ -127,10 +174,26 @@ def _extract_site_name(metadata: dict[str, Any]) -> str:
 
 
 def _format_accessed_date(accessed_date: date) -> str:
+    """Return a human-readable accessed date for citations.
+
+    Args:
+        accessed_date: Date when citation was accessed.
+
+    Returns:
+        Formatted string like '5 February 2025'.
+    """
     return f"{accessed_date.day} {accessed_date.strftime('%B')} {accessed_date.year}"
 
 
 def _extract_title(metadata: dict[str, Any]) -> str:
+    """Extract a title value from metadata with fallbacks.
+
+    Args:
+        metadata: CiteAs metadata dictionary.
+
+    Returns:
+        Title string or empty.
+    """
     title = metadata.get("title")
     if title:
         return str(title)
@@ -150,6 +213,14 @@ def _extract_title(metadata: dict[str, Any]) -> str:
 
 
 def _normalize_citations_object(candidate: dict[str, Any] | str | Mapping[str, Any]) -> dict[str, Any]:
+    """Normalize the citations input into a real dict.
+
+    Args:
+        candidate: Either dict, mapping, or string representation of CiteAs response.
+
+    Returns:
+        Parsed dictionary ready for metadata extraction.
+    """
     if isinstance(candidate, dict):
         return candidate
     if isinstance(candidate, Mapping):

@@ -6,7 +6,14 @@ from urllib.parse import quote
 import httpx
 
 def get_citation(url: str) -> dict:
-    """Retrieve the CiteAs payload for a single URL."""
+    """Retrieve the CiteAs payload for a single URL.
+
+    Args:
+        url: The resource to fetch from CiteAs (DOI, URL, keyword).
+
+    Returns:
+        Parsed JSON response from CiteAs containing citations/metadata.
+    """
 
     endpoint = f"https://api.citeas.org/product/{quote(url, safe=':/')}"
 
