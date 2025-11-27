@@ -29,8 +29,8 @@ def test_get_citation_http_error(monkeypatch):
             raise RuntimeError("400")
 
     monkeypatch.setattr(
-        "src.agent.tools.get_citation.httpx.get", lambda *args, **kwargs: ErrorResponse()
+        "src.agent.tools.get_citation.httpx.get",
+        lambda *args, **kwargs: ErrorResponse(),
     )
     with pytest.raises(RuntimeError):
         get_citation("https://example.com")
-

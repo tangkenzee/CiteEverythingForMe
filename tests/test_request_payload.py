@@ -17,4 +17,3 @@ def test_request_payload_round_trip():
         assert False, "Expected RuntimeError when payload missing"
     except RuntimeError:
         pass
-

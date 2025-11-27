@@ -68,7 +68,9 @@ def _normalize_trafilatura_metadata(content: Any) -> dict[str, Any]:
     if isinstance(content, dict):
         if isinstance(content.get("metadata"), dict):
             metadata = content["metadata"].copy()
-            metadata.update({k: v for k, v in content.items() if k != "metadata" and v is not None})
+            metadata.update(
+                {k: v for k, v in content.items() if k != "metadata" and v is not None}
+            )
             return metadata
         return content
     metadata: dict[str, Any] = {}
@@ -83,4 +85,3 @@ def _normalize_trafilatura_metadata(content: Any) -> dict[str, Any]:
             }
         )
     return metadata
-

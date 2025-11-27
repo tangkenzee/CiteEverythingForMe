@@ -36,4 +36,3 @@ def test_format_handles_empty_input():
     citations_object = {}
     result = format_citations(citations_object)
     assert result.startswith("accessed ")
-

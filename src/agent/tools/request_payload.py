@@ -41,4 +41,3 @@ def fetch_request_payload() -> dict[str, Any]:
         "urls": list(_current_payload["urls"]),
         "format": _current_payload["format"],
     }
-

@@ -38,7 +38,7 @@ app.add_middleware(
 @app.post("/generate", response_model=CitationResponse)
 async def generate_citations(request: CitationRequest) -> CitationResponse:
     """Generate formatted citations for up to five URLs."""
-    
+
     prompt = json.dumps({"command": "generate_citations"})
     citations: list[str] = []
 
@@ -51,7 +51,7 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
             if not isinstance(current, list):
                 raise ValueError("Agent response missing citations list.")
             citations.extend(str(item) for item in current)
-            
+
         except RuntimeError as exc:
             raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
         except json.JSONDecodeError:
@@ -62,4 +62,3 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
             clear_request_payload()
 
     return CitationResponse(citations=citations)
-

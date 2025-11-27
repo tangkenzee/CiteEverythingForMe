@@ -206,7 +206,9 @@ def _extract_title(metadata: dict[str, Any]) -> str:
     return ""
 
 
-def _normalize_citations_object(candidate: dict[str, Any] | str | Mapping[str, Any]) -> dict[str, Any]:
+def _normalize_citations_object(
+    candidate: dict[str, Any] | str | Mapping[str, Any],
+) -> dict[str, Any]:
     """Normalize the citations input into a real dict.
 
     Args:
@@ -227,4 +229,3 @@ def _normalize_citations_object(candidate: dict[str, Any] | str | Mapping[str, A
                 continue
         raise ValueError("Unable to parse citations object string.")
     raise ValueError("Unsupported type for citations object.")
-

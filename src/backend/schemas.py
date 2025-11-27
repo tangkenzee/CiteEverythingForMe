@@ -30,5 +30,3 @@ class CitationRequest(BaseModel):
 
 class CitationResponse(BaseModel):
     citations: list[str]
-
-

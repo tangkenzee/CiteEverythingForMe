@@ -5,6 +5,7 @@ from urllib.parse import quote
 
 import httpx
 
+
 def get_citation(url: str) -> dict:
     """Retrieve the CiteAs payload for a single URL.
 
@@ -25,8 +26,8 @@ def get_citation(url: str) -> dict:
 
         return response.json()
     except httpx.HTTPStatusError as exc:
-        raise RuntimeError(f"CiteAs rejected {url}: {exc.response.status_code}") from exc
+        raise RuntimeError(
+            f"CiteAs rejected {url}: {exc.response.status_code}"
+        ) from exc
     except httpx.RequestError as exc:
         raise RuntimeError(f"Unable to reach CiteAs for {url}: {exc}") from exc
-
-
