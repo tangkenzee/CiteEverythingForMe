@@ -28,6 +28,12 @@ app.add_middleware(
 )
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to verify the service is running."""
+    return {"status": "healthy", "service": "CiteEverythingForMe"}
+
+
 @app.post("/generate", response_model=CitationResponse)
 async def generate_citations(request: CitationRequest) -> CitationResponse:
     """Generate formatted citations for up to five URLs."""
