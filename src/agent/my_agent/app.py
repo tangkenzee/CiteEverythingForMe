@@ -1,14 +1,7 @@
 """Citation agent setup and configuration.
 
 This module initializes the ConnectOnion agent that orchestrates the citation
-generation workflow. The agent uses a set of tools to:
-1. Fetch the request payload (URLs and format)
-2. Retrieve citations from CiteAs API
-3. Scrape metadata from web pages when CiteAs is unavailable
-4. Format citations according to the requested style (Harvard, MLA, UNSW)
-
-The agent reads its instructions from agent_prompt.md, which defines the
-step-by-step workflow for generating citations.
+generation workflow. 
 """
 
 from __future__ import annotations

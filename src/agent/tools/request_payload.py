@@ -49,7 +49,6 @@ def clear_request_payload() -> None:
     Called by the FastAPI backend after the agent has finished processing
     a request. This prevents data from one request leaking into the next.
     
-    Should be called in a finally block to ensure cleanup even on errors.
     """
     global _current_payload
     _current_payload = None
