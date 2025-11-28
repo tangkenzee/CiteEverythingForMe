@@ -2,14 +2,31 @@
 The CiteEverythingForMe pipeline pairs a Chrome extension with a FastAPI backend and a ConnectOnion agent. The extension collects URLs and the desired citation style, then POSTs the payload to `/generate`. The backend validates it, loops through each URL, and invokes the agent once per URL. The agent handles CiteAs queries, Trafilatura fallback scraping (for UNSW), formatting, and returns `{"citations": ["..."]}` for each run. Once all citations are collected, the frontend formats and downloads them as a numbered text file.
 
 ## Architecture Details
-
+┌─────────────────────────────────────┐
+│   Frontend (Chrome Extension)      │
+│   - popup.js/html/css               │
+│   - utils/ (api, storage)           │
+└──────────────┬──────────────────────┘
+               │ HTTP POST
+┌──────────────▼──────────────────────┐
+│   Backend (FastAPI)                  │
+│   - main.py (orchestration)          │
+│   - schemas.py (validation)          │
+└──────────────┬──────────────────────┘
+               │ Agent invocation
+┌──────────────▼──────────────────────┐
+│   Agent (ConnectOnion)               │
+│   - app.py (agent setup)             │
+│   - agent_prompt.md (instructions)   │
+│   - tools/ (4 tools)                 │
+└─────────────────────────────────────┘
 - **Frontend stack**: Chrome popup (`popup.html`, `popup.js`, `popup.css`) plus storage utilities. Sends POST requests to `/generate`, receives the citation list, and downloads the `.txt` file with numbered entries, in-text citations, and reference text.
 
 - **Backend stack**: FastAPI server (`src/backend/main.py`) with `schemas.py` for request validation, `models.py` to alias the request, and a loop that calls `set_request_payload` for every URL before invoking the agent. Aggregates the per-URL `{"citations": [...]}` responses into a single list.
 
  - **Agent stack**: ConnectOnion agent (`src/agent/my_agent/app.py`) guided by `agent_prompt.md`. Tools under `src/agent/tools/` include `request_payload`, `fetch_cites`, `get_metadata`, and `format_UNSW`, each with dedicated tests.
 
-# Full Architecture (ASCII Diagram)
+# Full Workflow 
 ```
 [Chrome Extension / popup]
             |
