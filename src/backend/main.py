@@ -90,7 +90,10 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
 
         response:
         {
-            "citations": ["Author, A. (2024) 'Title', Site, accessed 5 February 2025, <https://example.com/article>."]
+            "citations": [
+                "Author, A. (2024) 'Title', Site, "
+                "accessed 5 February 2025, <https://example.com/article>."
+            ]
         }
     """
     # Command prompt for the citation agent
@@ -103,7 +106,8 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
         set_request_payload([url], request.format)
 
         try:
-            # Run the agent in a thread pool to avoid blocking, other endpoints can still be accessed while the agent is running
+            # Run the agent in a thread pool to avoid blocking
+            # Other endpoints can still be accessed while the agent is running
             # The agent will use its tools to fetch and format citations
             raw_response = await asyncio.to_thread(citation_agent.input, prompt)
 

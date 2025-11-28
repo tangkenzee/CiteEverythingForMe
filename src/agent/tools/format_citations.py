@@ -90,7 +90,7 @@ def format_UNSW(
     return f"{citation}." if citation else ""
 
 
-## helper functions for formatting citations ##
+# Helper functions for formatting citations
 
 
 def _format_authors(authors: Any) -> str:
