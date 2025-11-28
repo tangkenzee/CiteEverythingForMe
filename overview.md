@@ -68,7 +68,7 @@ The CiteEverythingForMe pipeline pairs a Chrome extension with a FastAPI backend
 # Notes
 - **Workflow order matters**: the agent sees one URL per invocation, fetches CiteAs, optionally scrapes metadata, formats UNSW citations, and immediately returns JSON.
 
-- **Testing**: `tests/test_format_citations.py`, `tests/test_request_payload.py`, `tests/test_get_citation.py`, and `tests/test_scrape_metadata.py` cover the formatter plus individual tools; run them with `python -m pytest tests/…`.
+- **Testing**: `tests/test_format_UNSW.py`, `tests/test_request_payload.py`, `tests/test_get_citation.py`, and `tests/test_scrape_metadata.py` cover the formatter plus individual tools; run them with `python -m pytest tests/…`.
 
 - **Formatting rules**: UNSW uses `scrape_metadata` results (Trafilatura wins) before running `format_citations`; Harvard/MLA rely solely on CiteAs’s `citations` array. The download helper extracts `(Author, Year)` or at least a year for the in-text citation line.
 

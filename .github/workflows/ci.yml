@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m pytest tests/test_format_citations.py \
+          python -m pytest tests/test_format_UNSW.py \
             tests/test_request_payload.py \
             tests/test_get_citation.py \
             tests/test_scrape_metadata.py
