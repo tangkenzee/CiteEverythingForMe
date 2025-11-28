@@ -1,4 +1,4 @@
-from src.agent.tools.format_citations import format_UNSW
+from src.agent.tools.format_UNSW import format_UNSW
 
 
 def test_format_reuses_authors_and_year():

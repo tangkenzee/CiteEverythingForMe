@@ -12,7 +12,7 @@ from connectonion import Agent, load_dotenv
 
 from src.agent.tools.request_payload import fetch_request_payload
 from src.agent.tools.scrape_metadata import get_metadata
-from src.agent.tools.format_citations import format_UNSW
+from src.agent.tools.format_UNSW import format_UNSW
 from src.agent.tools.get_citation import fetch_cites
 
 # Load environment variables
