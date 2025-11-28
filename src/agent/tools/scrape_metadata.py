@@ -19,7 +19,7 @@ import trafilatura
 
 def get_metadata(url: str) -> dict[str, Any]:
     """Scrape metadata from a web page for citation generation.
-    
+
     This tool is used as a fallback when CiteAs API doesn't have data for
     a URL. It fetches the web page and extracts:
     - Title
@@ -27,10 +27,10 @@ def get_metadata(url: str) -> dict[str, Any]:
     - Publication date/year
     - Publisher/source (domain name)
     - URL
-    
+
     Args:
         url: The URL of the web page to scrape metadata from.
-    
+
     Returns:
         Dictionary with structure matching CiteAs response:
         {
@@ -43,9 +43,9 @@ def get_metadata(url: str) -> dict[str, Any]:
                 "issued": {"date-parts": [[2024]]}
             }
         }
-        
+
         Returns {"metadata": {}} if scraping fails (network error, etc.).
-    
+
     Note:
         Uses trafilatura library for robust metadata extraction from HTML.
         Falls back to fetching URL directly if initial extraction fails.
@@ -61,7 +61,7 @@ def get_metadata(url: str) -> dict[str, Any]:
     # Extract metadata from the HTML content
     # Try extracting from response text first
     content = trafilatura.extract_metadata(response.text)
-    
+
     # If that fails, try fetching the URL directly with trafilatura
     if not content:
         downloaded = trafilatura.fetch_url(url)
@@ -70,7 +70,7 @@ def get_metadata(url: str) -> dict[str, Any]:
     # Normalize trafilatura output to a plain dictionary
     content = _normalize_trafilatura_metadata(content)
 
-    #extract fields from the metadata
+    # extract fields from the metadata
     title = content.get("title") or ""
 
     authors = content.get("authors") or content.get("author")
@@ -85,7 +85,7 @@ def get_metadata(url: str) -> dict[str, Any]:
         year = published[:4]
 
     domain = urlparse(url).netloc or ""
-    
+
     # Build metadata dictionary matching CiteAs format
     metadata: dict[str, Any] = {
         "title": title,
@@ -93,7 +93,7 @@ def get_metadata(url: str) -> dict[str, Any]:
         "publisher": content.get("source") or domain,
         "url": url,
     }
-    
+
     if year:
         metadata["year"] = year
         metadata["issued"] = {"date-parts": [[int(year)] if year.isdigit() else [year]]}
@@ -103,19 +103,19 @@ def get_metadata(url: str) -> dict[str, Any]:
 
 def _normalize_trafilatura_metadata(content: Any) -> dict[str, Any]:
     """Convert trafilatura's metadata output into a plain dictionary.
-    
+
     Trafilatura can return metadata in different formats:
     - Plain dictionary
     - Dictionary with nested "metadata" key
     - Document object with attributes
-    
+
     This function normalizes all formats into a single plain dictionary.
-    
+
     Args:
         content: Trafilatura output - can be:
             - A dictionary (plain or with nested "metadata")
             - A Document object with metadata attributes
-    
+
     Returns:
         Plain dictionary containing all metadata fields.
     """

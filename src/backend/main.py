@@ -55,32 +55,32 @@ async def health_check() -> dict[str, str]:
 @app.post("/generate", response_model=CitationResponse)
 async def generate_citations(request: CitationRequest) -> CitationResponse:
     """Generate formatted citations for up to five URLs.
-    
+
     This is the main endpoint that processes citation requests. It:
     1. Validates the request (URLs and format are checked by Pydantic)
     2. Processes each URL sequentially through the citation agent
     3. Aggregates all formatted citations into a single response
-    
+
     The agent workflow for each URL:
     - Fetches metadata from CiteAs API or web scraping
     - Formats citations according to the requested style (Harvard, MLA, or UNSW)
     - Returns the formatted citation string
-    
+
     Args:
         request: CitationRequest containing:
             - urls: List of 1-5 URLs to cite (validated HttpUrl objects)
             - format: Citation format string ("harvard", "mla", or "unsw")
-    
+
     Returns:
         CitationResponse containing a list of formatted citation strings.
         The list length equals the number of URLs processed.
-    
+
     Raises:
-        HTTPException: 
+        HTTPException:
             - 500 if the agent encounters an error
             - 500 if the agent returns invalid JSON
             - 500 if the agent response is malformed
-    
+
     Example:
         >>> POST /generate
         {
@@ -101,16 +101,16 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
     for url in request.urls:
         # Set the request payload so agent tools can access it
         set_request_payload([url], request.format)
-        
+
         try:
             # Run the agent in a thread pool to avoid blocking, other endpoints can still be accessed while the agent is running
             # The agent will use its tools to fetch and format citations
             raw_response = await asyncio.to_thread(citation_agent.input, prompt)
-            
+
             # Parse the agent's JSON response
             parsed = json.loads(raw_response)
             current = parsed.get("citations")
-            
+
             # Validate that citations is a list
             if not isinstance(current, list):
                 raise ValueError("Agent response missing citations list.")

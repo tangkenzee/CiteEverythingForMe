@@ -14,14 +14,14 @@ import httpx
 
 def fetch_cites(url: str) -> dict:
     """Retrieve citation data from CiteAs API for a single resource.
-    
+
     This tool is used by the citation agent to fetch pre-formatted citations
-    and metadata from the CiteAs service. 
-    
+    and metadata from the CiteAs service.
+
     The response includes:
     - Multiple citation formats (APA, MLA, Chicago, etc.)
     - Metadata (authors, title, publication date, etc.)
-    
+
     Args:
         url: (e.g., "https://example.com/article")
 
@@ -35,16 +35,16 @@ def fetch_cites(url: str) -> dict:
             "url": "...",            # Canonical URL
             "provenance": [...]      # Data source information
         }
-    
+
     Raises:
-        RuntimeError: 
+        RuntimeError:
             - If CiteAs API returns an error status code
             - If the request fails due to network issues
-    
+
     Note:
         The email parameter is required by CiteAs for usage tracking.
         Update the email in the params dictionary to your own email address.
-    
+
     Example:
         >>> fetch_cites("https://example.com/article")
         {
@@ -59,9 +59,9 @@ def fetch_cites(url: str) -> dict:
     # CiteAs requires an email parameter for usage tracking
     # TODO: Replace with your actual email address
     params = {"email": "test@example.com"}
-    
+
     try:
-        # Make GET request to CiteAs API 
+        # Make GET request to CiteAs API
         response = httpx.get(endpoint, params=params, timeout=3.0)
         response.raise_for_status()
 

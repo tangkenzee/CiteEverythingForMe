@@ -13,17 +13,17 @@ def format_UNSW(
     **_: Any,
 ) -> str:
     """Format a citation in UNSW style from CiteAs metadata or scraped data.
-    
+
     This function takes citation metadata (from CiteAs API or web scraping)
     and formats it according to UNSW citation guidelines. It handles:
     - Multiple author formats (dict with family/given, or plain strings)
     - Missing fields (gracefully omits unavailable information)
     - Various date formats
     - URL formatting
-    
+
     The output format is:
     "Author, A. B. 2024, _Site Name_, Publisher, accessed 5 February 2025, <https://example.com>."
-    
+
     Args:
         citations_object: Citation data in one of these formats:
             - Dictionary (CiteAs response or scraped metadata)
@@ -50,7 +50,7 @@ def format_UNSW(
     # Normalize input to a dictionary (handles string, dict, or Mapping)
     citations_object = _normalize_citations_object(citations_object)
     metadata = citations_object.get("metadata") or {}
-    
+
     # Extract and format all citation components
     authors = _format_authors(metadata.get("author") or metadata.get("authors"))
     year = _extract_year(metadata)
@@ -67,7 +67,7 @@ def format_UNSW(
         metadata.get("doi"),
     )
     accessed = _format_accessed_date(date.today())
-    author_year = " ".join(part for part in (authors, year) if part).strip()    
+    author_year = " ".join(part for part in (authors, year) if part).strip()
     site_name_text = f"_{site_name}_" if site_name else ""
     accessed_text = f"accessed {accessed}" if accessed else ""
     url_text = f"<{url}>" if url else ""
@@ -89,7 +89,9 @@ def format_UNSW(
     citation = ", ".join(components)
     return f"{citation}." if citation else ""
 
+
 ## helper functions for formatting citations ##
+
 
 def _format_authors(authors: Any) -> str:
     """Format the authors list into a comma-separated string.

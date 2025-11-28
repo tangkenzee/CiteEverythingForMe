@@ -14,24 +14,25 @@ _ALLOWED_FORMATS = {"harvard", "mla", "unsw"}
 
 class CitationRequest(BaseModel):
     """Request schema for citation generation endpoint.
-    
+
     Validates that:
     - At least 1 URL is provided
     - Maximum of 5 URLs per request
     - Format is one of the allowed values (case-insensitive)
     - URLs are valid HTTP/HTTPS URLs
-    
+
     Attributes:
         urls: List of 1-5 valid HTTP/HTTPS URLs to generate citations for.
         format: Citation style format. Must be one of: "harvard", "mla", "unsw".
                 Case-insensitive (will be normalized to lowercase).
-    
+
     Example:
         {
             "urls": ["https://example.com/article"],
             "format": "Harvard"
         }
     """
+
     urls: list[HttpUrl]
     format: str
 
@@ -64,4 +65,5 @@ class CitationResponse(BaseModel):
             ]
         }
     """
+
     citations: list[str]
