@@ -1,6 +1,7 @@
 """FastAPI backend server for CiteEverythingForMe.
 
-This module provides the REST API endpoints for the citation generation service.
+This module provides the REST API endpoints for the citation generation
+service.
 It receives requests from the Chrome extension, orchestrates the citation agent
 to process URLs, and returns formatted citations in the requested style.
 
@@ -45,6 +46,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     """Health check endpoint to verify the service is running."""
@@ -62,7 +64,8 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
 
     The agent workflow for each URL:
     - Fetches metadata from CiteAs API or web scraping
-    - Formats citations according to the requested style (Harvard, MLA, or UNSW)
+    - Formats citations according to the requested style
+      (Harvard, MLA, or UNSW)
     - Returns the formatted citation string
 
     Args:
@@ -108,7 +111,9 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
             # Run the agent in a thread pool to avoid blocking
             # Other endpoints can still be accessed while the agent is running
             # The agent will use its tools to fetch and format citations
-            raw_response = await asyncio.to_thread(citation_agent.input, prompt)
+            raw_response = await asyncio.to_thread(
+                citation_agent.input, prompt
+            )
 
             # Parse the agent's JSON response
             parsed = json.loads(raw_response)
@@ -122,10 +127,14 @@ async def generate_citations(request: CitationRequest) -> CitationResponse:
 
         except RuntimeError as exc:
             # Agent execution errors (e.g., tool failures, API errors)
-            raise HTTPException(status_code=500, detail=f"Agent error: {exc}") from exc
+            raise HTTPException(
+                status_code=500, detail=f"Agent error: {exc}"
+            ) from exc
         except json.JSONDecodeError:
             # Agent returned invalid JSON
-            raise HTTPException(status_code=500, detail="Agent returned invalid JSON.")
+            raise HTTPException(
+                status_code=500, detail="Agent returned invalid JSON."
+            )
         except ValueError as exc:
             # Agent response validation errors
             raise HTTPException(status_code=500, detail=str(exc))

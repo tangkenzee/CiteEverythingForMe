@@ -22,9 +22,10 @@ class CitationRequest(BaseModel):
     - URLs are valid HTTP/HTTPS URLs
 
     Attributes:
-        urls: List of 1-5 valid HTTP/HTTPS URLs to generate citations for.
-        format: Citation style format. Must be one of: "harvard", "mla", "unsw".
-                Case-insensitive (will be normalized to lowercase).
+        urls: List of 1-5 valid HTTP/HTTPS URLs to generate citations
+            for.
+        format: Citation style format. Must be one of: "harvard", "mla",
+            "unsw". Case-insensitive (will be normalized to lowercase).
 
     Example:
         {
@@ -61,7 +62,8 @@ class CitationResponse(BaseModel):
     Example:
         {
             "citations": [
-                "Author, A. (2024) 'Title', Site, accessed 5 February 2025, <https://example.com>."
+                "Author, A. (2024) 'Title', Site, accessed 5 February 2025, "
+                "<https://example.com>."
             ]
         }
     """

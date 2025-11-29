@@ -65,7 +65,9 @@ def get_metadata(url: str) -> dict[str, Any]:
     # If that fails, try fetching the URL directly with trafilatura
     if not content:
         downloaded = trafilatura.fetch_url(url)
-        content = trafilatura.extract_metadata(downloaded or response.text) or {}
+        content = (
+            trafilatura.extract_metadata(downloaded or response.text) or {}
+        )
 
     # Normalize trafilatura output to a plain dictionary
     content = _normalize_trafilatura_metadata(content)
@@ -96,7 +98,9 @@ def get_metadata(url: str) -> dict[str, Any]:
 
     if year:
         metadata["year"] = year
-        metadata["issued"] = {"date-parts": [[int(year)] if year.isdigit() else [year]]}
+        metadata["issued"] = {
+            "date-parts": [[int(year)] if year.isdigit() else [year]]
+        }
 
     return {"metadata": metadata}
 
@@ -122,9 +126,11 @@ def _normalize_trafilatura_metadata(content: Any) -> dict[str, Any]:
     if isinstance(content, dict):
         if isinstance(content.get("metadata"), dict):
             metadata = content["metadata"].copy()
-            metadata.update(
-                {k: v for k, v in content.items() if k != "metadata" and v is not None}
-            )
+            metadata.update({
+                k: v
+                for k, v in content.items()
+                if k != "metadata" and v is not None
+            })
             return metadata
         return content
     metadata: dict[str, Any] = {}

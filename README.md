@@ -1,5 +1,20 @@
 # CiteEverythingForMe
 
+## Problem Statement
+
+Creating properly formatted citations for web sources is a time-consuming and error-prone task that frequently interrupts research and writing workflows. Students, researchers, and writers often need to:
+
+- Manually extract metadata (authors, publication dates, titles) from web pages
+- Format citations according to complex style guidelines (Harvard, MLA, UNSW, etc.)
+- Copy URLs to external citation tools or websites, disrupting their workflow
+- Risk making formatting errors that can result in academic penalties or publication issues
+
+Existing solutions typically require users to leave their browser, navigate to separate citation generators, or manually construct citations—adding friction and increasing the likelihood of mistakes.
+
+**CiteEverythingForMe** solves this problem by providing a seamless, browser-integrated solution that automatically generates properly formatted citations directly from the web pages users are already viewing, without requiring them to leave their current context.
+
+## Overview
+
 CiteEverythingForMe is a Chrome extension paired with a FastAPI backend and a ConnectOnion agent. Users save up to five URLs, choose a citation format (Harvard, MLA, or UNSW), and download a numbered list of properly formatted citations without leaving the browser.
 
 ## Highlights

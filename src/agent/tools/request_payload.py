@@ -6,7 +6,8 @@ data (URLs and citation format) from the FastAPI backend to the agent's tools.
 The workflow:
 1. Backend calls set_request_payload() before invoking the agent
 2. Agent tools call fetch_request_payload() to get the URLs and format
-3. Backend calls clear_request_payload() after processing to prevent data leakage
+3. Backend calls clear_request_payload() after processing to prevent
+   data leakage
 
 This pattern is necessary because the agent tools need access to the request
 context, but the agent interface doesn't directly pass request parameters.
@@ -69,8 +70,8 @@ def fetch_request_payload() -> dict[str, Any]:
         }
 
     Raises:
-        RuntimeError: If no request payload has been set (i.e., set_request_payload
-                     was not called before agent execution).
+        RuntimeError: If no request payload has been set (i.e.,
+            set_request_payload was not called before agent execution).
 
     Note:
         This function is exposed as a tool to the agent, allowing it to

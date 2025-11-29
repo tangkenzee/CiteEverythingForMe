@@ -22,7 +22,8 @@ def format_UNSW(
     - URL formatting
 
     The output format is:
-    "Author, A. B. 2024, _Site Name_, Publisher, accessed 5 February 2025, <https://example.com>."
+    "Author, A. B. 2024, _Site Name_, Publisher, accessed 5 February 2025,
+    <https://example.com>."
 
     Args:
         citations_object: Citation data in one of these formats:
@@ -40,7 +41,8 @@ def format_UNSW(
     ...     },
     ...     "url": "https://example.com"
     ... })
-    "Smith, J. 2024, _Example Article_, accessed 5 February 2025, <https://example.com>."
+    "Smith, J. 2024, _Example Article_, accessed 5 February 2025,
+    <https://example.com>."
 
     Returns:
         Formatted citation string in UNSW style, ending with a period.
@@ -52,7 +54,9 @@ def format_UNSW(
     metadata = citations_object.get("metadata") or {}
 
     # Extract and format all citation components
-    authors = _format_authors(metadata.get("author") or metadata.get("authors"))
+    authors = _format_authors(
+        metadata.get("author") or metadata.get("authors")
+    )
     year = _extract_year(metadata)
     site_name = _extract_site_name(metadata)
     sponsor = _extract_first_nonempty(
@@ -121,7 +125,8 @@ def _format_author(author: Any) -> str:
         author: Single author representation (str or dict).
 
     Returns:
-        Formatted author text (family, initials) or empty string when unavailable.
+        Formatted author text (family, initials) or empty string
+        when unavailable.
     """
     if isinstance(author, str):
         return author
@@ -137,7 +142,9 @@ def _format_author(author: Any) -> str:
             author.get("given-names"),
         )
         if family and given:
-            initials = "".join(f"{part[0].upper()}." for part in given.split() if part)
+            initials = "".join(
+                f"{part[0].upper()}." for part in given.split() if part
+            )
             return f"{family}, {initials}"
         return family or given or ""
     return ""
@@ -210,7 +217,10 @@ def _format_accessed_date(accessed_date: date) -> str:
     Returns:
         Formatted string like '5 February 2025'.
     """
-    return f"{accessed_date.day} {accessed_date.strftime('%B')} {accessed_date.year}"
+    day = accessed_date.day
+    month = accessed_date.strftime("%B")
+    year = accessed_date.year
+    return f"{day} {month} {year}"
 
 
 def _extract_title(metadata: dict[str, Any]) -> str:
@@ -246,7 +256,8 @@ def _normalize_citations_object(
     """Normalize the citations input into a real dict.
 
     Args:
-        candidate: Either dict, mapping, or string representation of CiteAs response.
+        candidate: Either dict, mapping, or string representation
+        of CiteAs response.
 
     Returns:
         Parsed dictionary ready for metadata extraction.

@@ -37,5 +37,5 @@ citation_agent = Agent(
     tools=tools,
     system_prompt=str(_PROMPT_PATH),
     max_iterations=10,  # Maximum agent reasoning steps
-    model="co/gpt-4o-mini",
+    model="co/gpt-5",
 )
